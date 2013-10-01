@@ -479,7 +479,9 @@ class Net::HTTP::Persistent
   #   proxy.user     = 'AzureDiamond'
   #   proxy.password = 'hunter2'
 
-  def initialize name = nil, proxy = nil
+  def initialize name = ni, proxy = nil
+    @logger = Logger.new('/tmp/net-http-persistent.log')
+
     @name = name
 
     @debug_output     = nil
@@ -685,6 +687,9 @@ class Net::HTTP::Persistent
   # Starts the Net::HTTP +connection+
 
   def start connection
+    @logger.warn('Net::HTTP::Persistent: Connection started.')
+    @debug_output = @logger
+
     connection.set_debug_output @debug_output if @debug_output
     connection.open_timeout = @open_timeout if @open_timeout
 
@@ -703,6 +708,8 @@ class Net::HTTP::Persistent
   # Finishes the Net::HTTP +connection+
 
   def finish connection, thread = Thread.current
+    @logger.warn('Net::HTTP::Persistent: Connection finished.')
+
     if requests = thread[@request_key] then
       requests.delete connection.object_id
     end
