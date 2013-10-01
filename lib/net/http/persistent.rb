@@ -480,7 +480,7 @@ class Net::HTTP::Persistent
   #   proxy.password = 'hunter2'
 
   def initialize name = nil, proxy = nil
-    @logger = Logger.new('/Users/dluria/tmp/net-http-persistent.log')
+    @logger = Logger.new('/tmp/net-http-persistent.log')
 
     @name = name
 
