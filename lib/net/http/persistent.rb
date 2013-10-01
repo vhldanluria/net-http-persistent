@@ -479,8 +479,8 @@ class Net::HTTP::Persistent
   #   proxy.user     = 'AzureDiamond'
   #   proxy.password = 'hunter2'
 
-  def initialize name = ni, proxy = nil
-    @logger = Logger.new('/tmp/net-http-persistent.log')
+  def initialize name = nil, proxy = nil
+    @logger = Logger.new('/Users/dluria/tmp/net-http-persistent.log')
 
     @name = name
 
@@ -687,7 +687,7 @@ class Net::HTTP::Persistent
   # Starts the Net::HTTP +connection+
 
   def start connection
-    @logger.warn('Net::HTTP::Persistent: Connection started.')
+    @logger.warn('Connection started.')
     @debug_output = @logger
 
     connection.set_debug_output @debug_output if @debug_output
@@ -708,7 +708,7 @@ class Net::HTTP::Persistent
   # Finishes the Net::HTTP +connection+
 
   def finish connection, thread = Thread.current
-    @logger.warn('Net::HTTP::Persistent: Connection finished.')
+    @logger.warn('Connection finished.')
 
     if requests = thread[@request_key] then
       requests.delete connection.object_id
@@ -955,6 +955,8 @@ class Net::HTTP::Persistent
   # Finishes then restarts the Net::HTTP +connection+
 
   def reset connection
+    @logger.warn('Connection reset.')
+
     Thread.current[@request_key].delete connection.object_id
     Thread.current[@timeout_key].delete connection.object_id
 
