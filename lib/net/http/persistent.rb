@@ -1050,6 +1050,7 @@ class Net::HTTP::Persistent
 
     finish connection
 
+    @logger.warn("request_failed: #{message}")
 
     raise Error, message, exception.backtrace
   end
