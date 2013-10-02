@@ -493,7 +493,7 @@ class Net::HTTP::Persistent
     @keep_alive       = 30
     @open_timeout     = nil
     @read_timeout     = nil
-    @idle_timeout     = 60
+    @idle_timeout     = 5
     @max_requests     = nil
     @socket_options   = []
 
