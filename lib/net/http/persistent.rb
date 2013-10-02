@@ -480,7 +480,7 @@ class Net::HTTP::Persistent
   #   proxy.password = 'hunter2'
 
   def initialize name = nil, proxy = nil
-    @logger = Logger.new('/tmp/net-http-persistent.log')
+    @logger = Logger.new("/tmp/net-http-persistent-#{Process.pid}.log")
 
     @name = name
 
@@ -493,7 +493,7 @@ class Net::HTTP::Persistent
     @keep_alive       = 30
     @open_timeout     = nil
     @read_timeout     = nil
-    @idle_timeout     = 5
+    @idle_timeout     = 60
     @max_requests     = nil
     @socket_options   = []
 
@@ -687,8 +687,7 @@ class Net::HTTP::Persistent
   # Starts the Net::HTTP +connection+
 
   def start connection
-    @logger.warn('Connection started.')
-    @debug_output = @logger
+    @logger.warn("#{connection.object_id}: Connection started.")
 
     connection.set_debug_output @debug_output if @debug_output
     connection.open_timeout = @open_timeout if @open_timeout
@@ -708,7 +707,7 @@ class Net::HTTP::Persistent
   # Finishes the Net::HTTP +connection+
 
   def finish connection, thread = Thread.current
-    @logger.warn('Connection finished.')
+    @logger.warn("#{connection.object_id}: Connection finished.")
 
     if requests = thread[@request_key] then
       requests.delete connection.object_id
@@ -955,7 +954,7 @@ class Net::HTTP::Persistent
   # Finishes then restarts the Net::HTTP +connection+
 
   def reset connection
-    @logger.warn('Connection reset.')
+    @logger.warn("#{connection.object_id}: Connection reset after #{Thread.current[@request_key][connection.object_id]} requests.")
 
     Thread.current[@request_key].delete connection.object_id
     Thread.current[@timeout_key].delete connection.object_id
@@ -1050,7 +1049,7 @@ class Net::HTTP::Persistent
 
     finish connection
 
-    @logger.warn("request_failed: #{message}")
+    @logger.warn("#{connection.object_id}: request_failed: #{message}")
 
     raise Error, message, exception.backtrace
   end
@@ -1103,6 +1102,8 @@ class Net::HTTP::Persistent
 
     ssl_generation = reconnect_ssl
     cleanup ssl_generation, thread, @ssl_generation_key
+
+    @logger.warn("#{connection.object_id}: Shutdown thread. [generation_key: #{@generation_key}] [request_key: #{@request_key}]")
 
     thread[@request_key] = nil
     thread[@timeout_key] = nil
